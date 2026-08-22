@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Bandas — Demo</title>
+<style>
+  :root {
+    --tinta: #1c1b1a;
+    --papel: #f6f2ea;
+    --acento: #b4472a;
+    --acento-suave: #e6d9c8;
+    --linea: #d9cfbd;
+    --verde: #4a6b4f;
+    --ambar: #b3831f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--papel);
+    color: var(--tinta);
+    font-family: 'Georgia', 'Times New Roman', serif;
+  }
+  header {
+    padding: 28px 32px 20px;
+    border-bottom: 3px solid var(--tinta);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 28px;
+    letter-spacing: 0.5px;
+  }
+  header .subtitulo {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #6b6560;
+  }
+  .config {
+    padding: 10px 32px;
+    background: var(--acento-suave);
+    border-bottom: 1px solid var(--linea);
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .config input {
+    flex: 1;
+    min-width: 220px;
+    padding: 6px 8px;
+    border: 1px solid var(--linea);
+    background: white;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+  .config button {
+    padding: 6px 14px;
+    border: 1px solid var(--tinta);
+    background: var(--tinta);
+    color: var(--papel);
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+  nav {
+    display: flex;
+    gap: 2px;
+    padding: 0 32px;
+    background: var(--papel);
+    border-bottom: 1px solid var(--linea);
+  }
+  nav button {
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #6b6560;
+    border-bottom: 3px solid transparent;
+  }
+  nav button.activa {
+    color: var(--tinta);
+    border-bottom-color: var(--acento);
+    font-weight: bold;
+  }
+  main { padding: 28px 32px 60px; max-width: 1100px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.activo { display: block; }
+  .form-card {
+    background: white;
+    border: 1px solid var(--linea);
+    padding: 20px 24px;
+    margin-bottom: 28px;
+  }
+  .form-card h2 {
+    margin-top: 0;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--acento);
+  }
+  .campos {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+  }
+  label {
+    display: block;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b6560;
+    margin-bottom: 4px;
+  }
+  input, select, textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--linea);
+    font-family: Georgia, serif;
+    font-size: 14px;
+    background: var(--papel);
+  }
+  .form-card button.enviar {
+    margin-top: 16px;
+    padding: 10px 22px;
+    background: var(--acento);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .tarjetas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 14px;
+  }
+  .tarjeta {
+    background: white;
+    border: 1px solid var(--linea);
+    border-left: 4px solid var(--acento);
+    padding: 14px 16px;
+    position: relative;
+  }
+  .tarjeta h3 { margin: 0 0 8px; font-size: 16px; }
+  .tarjeta p { margin: 2px 0; font-size: 13px; color: #444; }
+  .tarjeta .etiqueta { font-family: 'Courier New', monospace; font-size: 10px; text-transform: uppercase; color: #999; }
+  .estado-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 2px;
+  }
+  .estado-PENDIENTE { background: #f2e2c4; color: var(--ambar); }
+  .estado-EN_PROCESO { background: #dbe3f0; color: #35548c; }
+  .estado-CONFIRMADO { background: #dcead9; color: var(--verde); }
+  .tablon-controles {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .tablon-controles > div { flex: 1; min-width: 180px; }
+  .aviso {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    border-left: 3px solid var(--acento);
+    background: var(--acento-suave);
+  }
+  .aviso.error { border-left-color: #b3271e; background: #fbe4e1; }
+  .vacio { font-family: 'Courier New', monospace; font-size: 13px; color: #999; padding: 20px 0; }
+  .fila-participacion {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .fila-participacion select, .fila-participacion input { width: auto; }
+  .fila-participacion textarea { flex: 1; min-width: 150px; height: 32px; }
+  button.mini {
+    padding: 6px 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    background: var(--tinta);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  button.mini.borrar { background: #b3271e; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>CRM Bandas</h1>
+    <div class="subtitulo">Salas · Grupos · Eventos colaborativos</div>
+  </div>
+</header>
+
+<div class="config">
+  <span>API:</span>
+  <input id="apiBase" value="http://localhost:8080/api" />
+  <button onclick="guardarApiBase()">Guardar</button>
+  <span id="estadoConexion"></span>
+</div>
+
+<nav>
+  <button class="tab activa" data-panel="salas">Salas</button>
+  <button class="tab" data-panel="grupos">Grupos</button>
+  <button class="tab" data-panel="eventos">Eventos</button>
+  <button class="tab" data-panel="tablon">Tablón</button>
+</nav>
+
+<main>
+
+  <!-- SALAS -->
+  <section id="panel-salas" class="panel activo">
+    <div class="form-card">
+      <h2>Nueva sala</h2>
+      <form id="form-sala">
+        <div class="campos">
+          <div><label>Nombre</label><input name="nombre" required></div>
+          <div><label>Ciudad</label><input name="ciudad" required></div>
+          <div><label>Email</label><input name="email" type="email" required></div>
+          <div><label>Teléfono</label><input name="telefono"></div>
+          <div><label>Persona de contacto</label><input name="personaContacto"></div>
+        </div>
+        <button type="submit" class="enviar">Guardar sala</button>
+      </form>
+    </div>
+    <div id="lista-salas" class="tarjetas"></div>
+  </section>
+
+  <!-- GRUPOS -->
+  <section id="panel-grupos" class="panel">
+    <div class="form-card">
+      <h2>Nuevo grupo</h2>
+      <form id="form-grupo">
+        <div class="campos">
+          <div><label>Nombre</label><input name="nombre" required></div>
+          <div><label>Ciudad</label><input name="ciudad" required></div>
+          <div><label>Email</label><input name="email" type="email" required></div>
+          <div><label>Teléfono</label><input name="telefono"></div>
+          <div><label>Persona de contacto</label><input name="personaContacto"></div>
+        </div>
+        <button type="submit" class="enviar">Guardar grupo</button>
+      </form>
+    </div>
+    <div id="lista-grupos" class="tarjetas"></div>
+  </section>
+
+  <!-- EVENTOS -->
+  <section id="panel-eventos" class="panel">
+    <div class="form-card">
+      <h2>Nuevo evento</h2>
+      <form id="form-evento">
+        <div class="campos">
+          <div><label>Nombre</label><input name="nombre" required></div>
+          <div><label>Fecha</label><input name="fecha" type="date" required></div>
+          <div>
+            <label>Sala</label>
+            <select name="salaId" id="select-sala-evento" required></select>
+          </div>
+          <div><label>Descripción</label><input name="descripcion"></div>
+        </div>
+        <button type="submit" class="enviar">Guardar evento</button>
+      </form>
+    </div>
+    <div id="lista-eventos" class="tarjetas"></div>
+  </section>
+
+  <!-- TABLON -->
+  <section id="panel-tablon" class="panel">
+    <div class="tablon-controles">
+      <div>
+        <label>Elige un evento</label>
+        <select id="select-evento-tablon"></select>
+      </div>
+      <div>
+        <label>Añadir grupo al tablón</label>
+        <select id="select-grupo-tablon"></select>
+      </div>
+      <div style="flex: 0;">
+        <button class="mini" onclick="anadirGrupoAlTablon()">Apuntar grupo</button>
+      </div>
+    </div>
+    <div id="lista-tablon" class="tarjetas"></div>
+  </section>
+
+</main>
+
+<script>
+let API_BASE = document.getElementById('apiBase').value;
+
+function guardarApiBase() {
+  API_BASE = document.getElementById('apiBase').value.replace(/\/$/, '');
+  cargarTodo();
+}
+
+document.querySelectorAll('nav .tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('nav .tab').forEach(b => b.classList.remove('activa'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+    btn.classList.add('activa');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('activo');
+  });
+});
+
+async function apiFetch(path, options = {}) {
+  const resp = await fetch(API_BASE + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options
+  });
+  if (!resp.ok) {
+    let detalle = '';
+    try { detalle = JSON.stringify(await resp.json()); } catch (e) {}
+    throw new Error('Error ' + resp.status + ' en ' + path + ' ' + detalle);
+  }
+  if (resp.status === 204) return null;
+  return resp.json();
+}
+
+function mostrarError(mensaje) {
+  console.error(mensaje);
+  document.getElementById('estadoConexion').textContent = '⚠ ' + mensaje;
+  document.getElementById('estadoConexion').style.color = '#b3271e';
+}
+function limpiarError() {
+  document.getElementById('estadoConexion').textContent = '✓ conectado';
+  document.getElementById('estadoConexion').style.color = '#4a6b4f';
+}
+
+// ---------- SALAS ----------
+async function cargarSalas() {
+  const salas = await apiFetch('/salas');
+  const cont = document.getElementById('lista-salas');
+  cont.innerHTML = salas.length ? '' : '<div class="vacio">Todavía no hay salas.</div>';
+  salas.forEach(s => {
+    cont.innerHTML += `
+      <div class="tarjeta">
+        <span class="etiqueta">Sala</span>
+        <h3>${s.nombre}</h3>
+        <p>${s.ciudad}</p>
+        <p>${s.email}</p>
+        <p>${s.telefono || ''}</p>
+        <p>${s.personaContacto || ''}</p>
+      </div>`;
+  });
+  const select = document.getElementById('select-sala-evento');
+  select.innerHTML = salas.map(s => `<option value="${s.id}">${s.nombre} (${s.ciudad})</option>`).join('');
+}
+
+document.getElementById('form-sala').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const datos = Object.fromEntries(new FormData(e.target));
+  try {
+    await apiFetch('/salas', { method: 'POST', body: JSON.stringify(datos) });
+    e.target.reset();
+    await cargarSalas();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+});
+
+// ---------- GRUPOS ----------
+let gruposCache = [];
+async function cargarGrupos() {
+  gruposCache = await apiFetch('/grupos');
+  const cont = document.getElementById('lista-grupos');
+  cont.innerHTML = gruposCache.length ? '' : '<div class="vacio">Todavía no hay grupos.</div>';
+  gruposCache.forEach(g => {
+    cont.innerHTML += `
+      <div class="tarjeta">
+        <span class="etiqueta">Grupo</span>
+        <h3>${g.nombre}</h3>
+        <p>${g.ciudad}</p>
+        <p>${g.email}</p>
+        <p>${g.telefono || ''}</p>
+        <p>${g.personaContacto || ''}</p>
+      </div>`;
+  });
+  const select = document.getElementById('select-grupo-tablon');
+  select.innerHTML = gruposCache.map(g => `<option value="${g.id}">${g.nombre}</option>`).join('');
+}
+
+document.getElementById('form-grupo').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const datos = Object.fromEntries(new FormData(e.target));
+  try {
+    await apiFetch('/grupos', { method: 'POST', body: JSON.stringify(datos) });
+    e.target.reset();
+    await cargarGrupos();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+});
+
+// ---------- EVENTOS ----------
+async function cargarEventos() {
+  const eventos = await apiFetch('/eventos');
+  const cont = document.getElementById('lista-eventos');
+  cont.innerHTML = eventos.length ? '' : '<div class="vacio">Todavía no hay eventos.</div>';
+  eventos.forEach(ev => {
+    cont.innerHTML += `
+      <div class="tarjeta">
+        <span class="etiqueta">Evento</span>
+        <h3>${ev.nombre}</h3>
+        <p>${ev.fecha}</p>
+        <p>${ev.sala ? ev.sala.nombre : ''}</p>
+        <p>${ev.descripcion || ''}</p>
+      </div>`;
+  });
+  const select = document.getElementById('select-evento-tablon');
+  const seleccionActual = select.value;
+  select.innerHTML = eventos.map(ev => `<option value="${ev.id}">${ev.nombre} — ${ev.fecha}</option>`).join('');
+  if (seleccionActual) select.value = seleccionActual;
+}
+
+document.getElementById('form-evento').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const form = new FormData(e.target);
+  const datos = {
+    nombre: form.get('nombre'),
+    fecha: form.get('fecha'),
+    descripcion: form.get('descripcion'),
+    sala: { id: Number(form.get('salaId')) }
+  };
+  try {
+    await apiFetch('/eventos', { method: 'POST', body: JSON.stringify(datos) });
+    e.target.reset();
+    await cargarEventos();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+});
+
+// ---------- TABLON ----------
+document.getElementById('select-evento-tablon').addEventListener('change', cargarTablon);
+
+async function cargarTablon() {
+  const eventoId = document.getElementById('select-evento-tablon').value;
+  const cont = document.getElementById('lista-tablon');
+  if (!eventoId) { cont.innerHTML = '<div class="vacio">Crea un evento primero.</div>'; return; }
+  try {
+    const participaciones = await apiFetch(`/eventos/${eventoId}/tablon`);
+    cont.innerHTML = participaciones.length ? '' : '<div class="vacio">Ningún grupo apuntado todavía.</div>';
+    participaciones.forEach(p => {
+      cont.innerHTML += `
+        <div class="tarjeta">
+          <span class="etiqueta">Grupo</span>
+          <h3>${p.grupoNombre}</h3>
+          <span class="estado-badge estado-${p.estado}">${p.estado.replace('_',' ')}</span>
+          <div class="fila-participacion">
+            <select onchange="actualizarParticipacion(${p.id}, this.value, null)">
+              <option value="PENDIENTE" ${p.estado === 'PENDIENTE' ? 'selected' : ''}>Pendiente</option>
+              <option value="EN_PROCESO" ${p.estado === 'EN_PROCESO' ? 'selected' : ''}>En proceso</option>
+              <option value="CONFIRMADO" ${p.estado === 'CONFIRMADO' ? 'selected' : ''}>Confirmado</option>
+            </select>
+            <textarea placeholder="Notas..." onblur="actualizarParticipacion(${p.id}, '${p.estado}', this.value)">${p.notas || ''}</textarea>
+            <button class="mini borrar" onclick="quitarDelTablon(${p.id})">Quitar</button>
+          </div>
+        </div>`;
+    });
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+}
+
+async function anadirGrupoAlTablon() {
+  const eventoId = document.getElementById('select-evento-tablon').value;
+  const grupoId = document.getElementById('select-grupo-tablon').value;
+  if (!eventoId || !grupoId) { mostrarError('Elige un evento y un grupo primero'); return; }
+  try {
+    await apiFetch('/participaciones', {
+      method: 'POST',
+      body: JSON.stringify({ eventoId: Number(eventoId), grupoId: Number(grupoId) })
+    });
+    await cargarTablon();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+}
+
+async function actualizarParticipacion(id, estado, notas) {
+  try {
+    await apiFetch(`/participaciones/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ estado, notas })
+    });
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+}
+
+async function quitarDelTablon(id) {
+  try {
+    await apiFetch(`/participaciones/${id}`, { method: 'DELETE' });
+    await cargarTablon();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+}
+
+// ---------- CARGA INICIAL ----------
+async function cargarTodo() {
+  try {
+    await cargarSalas();
+    await cargarGrupos();
+    await cargarEventos();
+    await cargarTablon();
+    limpiarError();
+  } catch (err) { mostrarError(err.message); }
+}
+cargarTodo();
+</script>
+
+</body>
+</html>
