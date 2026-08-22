@@ -1,11 +1,11 @@
-# Imagen base con Java 17 para compilar
-FROM maven:3.9-eclipse-temurin-17 AS build
+# Imagen con Maven y Java para compilar el proyecto
+FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Imagen ligera para ejecutar la aplicación
-FROM eclipse-temurin-17-jre
+# Imagen para ejecutar la aplicación
+FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
